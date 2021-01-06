@@ -1,6 +1,4 @@
 {
-  "prefix": "?",
-  "commands": {
     "help": {
       "need_auth": 0,
       "role_req": [],
@@ -49,21 +47,21 @@
         2
       ]
     },
-    "setrankdate": {
+    "setrankupchannel": {
       "need_auth": 1,
       "role_req": [],
-      "usage": "setjoindate <@user> <date> (rank=unranked)",
+      "usage": "setrankupchannel <#rank-up-channel> <rankup-message-id> <#pending-ranks-channel> <#rank-updates-channel> <@admin-role>",
       "options": {
-        "member": "a member id or mention",
-        "rank (optional)": "The following options are recognized:\nunranked, none\nsmiley, smiley, smile\nrecruit, nana, nanna, one stripe, 1 nana, 1 nanna, 1 stripe\ncorporal, two stripe, 2 nana, 2 nanna, 2 stripe\nsergeant, three stripe, 3 nana, 3 nanna, 3 stripe\nlieutenenant, bronze, bonze star\ncaptain, silver, silver star\ngeneral, gold, gold star"
+        "#rank-up-channel": "The channel where people rank up in",
+        "rank-up-message-id": "The id of the message people need to react on",
+        "#pending-ranks-channel": "The channel where confirmations for ranks are send for review",
+        "#rank-updates-channel": "The channel where updates on ranks are send",
+        "@admin role": "The role that can review rank-ups"
       },
       "description": "Sets the date a user was ranked, useful for changing pre-bot ranks",
       "arguments": [
-        2,
-        3
-      ],
-      "kwargs": [
-        "rank"
+        5,
+        5
       ]
     },
     "createpoll": {
@@ -81,7 +79,7 @@
       "description": "creates an emoji poll with hidden results",
       "arguments": [
         2,
-        100
+        22
       ],
       "kwargs": [
         "channel",
@@ -129,4 +127,3 @@
       ]
     }
   }
-}

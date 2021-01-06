@@ -9,18 +9,17 @@ import discord
 class HelpCommand(InvocationCommand):
     """Help command class implementation"""
 
-    COMMAND_DESCRIPTION_FILE = "commands/commanddescriptions.json"
+    COMMAND_DESCRIPTION_FILE = "commands/commands.json"
 
     def __init__(self, cr):
         super().__init__(cr, self.help, "help")
         with open(self.COMMAND_DESCRIPTION_FILE) as commandfp:
             self.description = json.load(commandfp, object_pairs_hook=OrderedDict)
 
-    async def help(self, ctx, commandname:str=None):
+    async def help(self, ctx, commandname: str=None):
         """Command to explain the use of diffent commands"""
         title = None
         description = None
-
         if commandname is not None and commandname not in self.router.comlist:
             msg = "That command does not exist try to use: '{}help' for a list of all commands"
             msg = msg.format(self.router.settings[ctx.guild.id]["prefix"])

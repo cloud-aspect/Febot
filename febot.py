@@ -9,7 +9,6 @@ import discord
 load_dotenv()
 os.chdir(os.path.dirname(sys.argv[0]))
 TOKEN = os.getenv('DISCORD_TOKEN')
-COMMAND_FILE = os.getenv('COMMAND_FILE')
 
 client = discord.Client(intents=discord.Intents.all())
 cr.set_client(client)

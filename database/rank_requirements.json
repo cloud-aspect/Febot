@@ -1,29 +1,34 @@
 {
     "default":
         {"smiley":{
+            "handpicked":0,
             "time":0,
             "total":500,
             "gear":0
         },
         "recruit":{
+            "handpicked":0,
             "time":4,
             "total":1250,
             "gear":0
         },
         "corporal":{
+            "handpicked":0,
             "time":10,
             "total":1500,
-            "gear":1
+            "gear":0
         },
         "sergeant":{
+            "handpicked":0,
             "time":20,
             "total":1750,
             "gear":1
         },
-        "lieutenenant":{
+        "lieutenant":{
+            "handpicked":0,
             "time":36,
             "total":2000,
-            "gear":0
+            "gear":1
         },
         "captain":{
             "handpicked":1,

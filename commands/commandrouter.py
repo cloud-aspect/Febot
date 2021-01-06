@@ -1,20 +1,17 @@
 
 """This file implements a commmandrouter for a discord bot"""
-import os
 import json
 import shlex
 from collections import defaultdict
 
-from commands.command import Command, InvocationCommand
+from commands.command import InvocationCommand
 from commands.instances import *
 
-from dotenv import load_dotenv
 from aiofile import AIOFile
 
 class CommandRouter:
     """routes messages to commands"""
-    def __init__(self, command_json_file):
-        #self.COMMAND_FILE = command_json_file
+    def __init__(self):
         self.SETTINGS_FILE = "commands/settings.json"
         with open(self.SETTINGS_FILE) as settingsfp:
             self.settings = json.load(settingsfp)
@@ -22,6 +19,7 @@ class CommandRouter:
 
         self.comlist = {}
         self.emoji_comlist = {}
+        self.channel_comlist = {}
         self.client = None
 
         for com in InvocationCommand.__subclasses__():
@@ -45,6 +43,9 @@ class CommandRouter:
     def add_emoji_listener(self, messageid, command):
         """adds emoji to be routed for a given message"""
         self.emoji_comlist[messageid] = command
+    
+    def add_channel_listener(self, channel_id, command):
+        self.channel_comlist[channel_id] = command
 
     def remove_emoji_listener(self, messageid):
         """removes emojis to be routed for a given message"""
@@ -52,12 +53,12 @@ class CommandRouter:
         if str(messageid) + "_message" in self.emoji_comlist:
             del self.emoji_comlist[str(messageid) + "_message"]
 
-    async def _iscommand(self, command):
+    def _iscommand(self, command):
         #command must be defined in commands.json
         return command in self.comlist
 
     def _startswithprefix(self, ctx, command):
-        return command.startswith(self.settings[ctx.guild.id]["prefix"])
+        return command.startswith(self.settings[str(ctx.guild.id)]["prefix"])
 
     async def route_messsage(self, ctx):
         """given a discord message interprets it
@@ -66,24 +67,27 @@ class CommandRouter:
             return
 
         command = ctx.content
-        if not self._startswithprefix(ctx, command):
-            return
-        command = shlex.split(command)
-        #remove prefix
-        command[0] = command[0][len(self.settings[ctx.guild.id]["prefix"]):]
+        if self._startswithprefix(ctx, command):
+            command = shlex.split(command)
+            #remove prefix
+            command[0] = command[0][len(self.settings[ctx.guild.id]["prefix"]):]
 
-        if not await self._iscommand(command[0]):
-            await ctx.channel.send("{} is not a command".format(command[0]))
+            if not self._iscommand(command[0]):
+                await ctx.channel.send("{} is not a command".format(command[0]))
+                return
+
+            await self.comlist[command[0]].run(ctx, command[1:])
             return
 
-        await self.comlist[command[0]].run(ctx, command[1:])
+        if ctx.channel.id in self.channel_comlist:
+            await self.channel_comlist[ctx.channel.id].run(ctx)
 
     async def route_emoji(self, payload):
         """given an added/removed reaction routes it"""
         if not payload.message_id in self.emoji_comlist:
             return
 
-        # remember the message after an emoji has been pressed once, 
+        # remember the message after an emoji has been pressed once,
         # so we don't fetch it mutltiple times
         message = self.emoji_comlist.get(str(payload.message_id) + "_message")
         if not message:
@@ -95,11 +99,11 @@ class CommandRouter:
 
     async def save_command_params(self):
         """saves command parameters to file if they've been updated"""
-        async with AIOFile(self.COMMAND_FILE, "w+") as afp:
+        async with AIOFile(self.SETTINGS_FILE, "w+") as afp:
             await afp.write(json.dumps(self.settings, indent=2))
 
-load_dotenv()
-COMMAND_FILE = os.getenv('COMMAND_FILE')
-cr = CommandRouter(COMMAND_FILE)
+
+
+cr = CommandRouter()
 
 print(cr.comlist.keys())

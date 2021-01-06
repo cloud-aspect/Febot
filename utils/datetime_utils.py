@@ -11,14 +11,17 @@ def td_format(td_object, precision='day'):
         ('minute', 60),
         ('second', 1)
     ]
-
     strings = []
     for period_name, period_seconds in periods:
         if seconds > period_seconds:
             period_value, seconds = divmod(seconds, period_seconds)
             has_s = 's' if period_value > 1 else ''
-            strings.append("%s %s%s" % (period_value, period_name, has_s))
+            appendage = "%s %s%s" % (period_value, period_name, has_s)
+            strings += [appendage]
         if period_name == precision:
             break
+
+    if not strings:
+        return "less than a {}".format(precision)
 
     return ", ".join(strings)

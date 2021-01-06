@@ -61,7 +61,14 @@ def to_role(guild, text):
     role = guild.get_role(role_id)
     if role:
         return role
-    raise ValueError
+    raise ValueError("can't find that role")
+
+def to_channel(guild, text):
+    channel_id = id_or_mention_to_id(text)
+    channel = guild.get_channel(channel_id)
+    if channel:
+        return channel
+    raise ValueError("can't find that channel")
 
 def to_member(guild, text):
     user_id = id_or_mention_to_id(text)
@@ -69,13 +76,6 @@ def to_member(guild, text):
     if member:
         return member
     raise ValueError("can't find that member")
-
-def to_channel(guild, text):
-    channel_id = id_or_mention_to_id(text)
-    channel = guild.get_channel(channel_id)
-    if channel:
-        return channel
-    raise ValueError
 
 def to_str(_, text):
     return text

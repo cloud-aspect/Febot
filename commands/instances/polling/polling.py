@@ -1,5 +1,4 @@
 """implements a polling function using emojis in dicord"""
-import os
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -8,9 +7,8 @@ from commands.command import InvocationCommand, EmojiCommand
 import discord
 from utils.discord_utils import is_emoji, id_or_mention_to_id
 from utils.async_utils import Timer, json_save
-import asyncio
 
-RUNNING_POLLS_FILE ='database/polls.json'
+RUNNING_POLLS_FILE = 'database/polls.json'
 timers = {}
 
 with open(RUNNING_POLLS_FILE) as data:
@@ -51,14 +49,14 @@ class CreatePoll(InvocationCommand):
             options += [option]
 
         if len(emoji_options) < 2:
-            await self.send_error_msg(ctx.channel, 
+            await self.send_error_msg(ctx.channel,
                                       "The poll needs more options than {}".format(len(emojis)))
             return
 
         if channel is None:
             channel = ctx.channel
 
-        await self._create_poll(ctx, runtime, title, emoji_options, options, channel=channel, 
+        await self._create_poll(ctx, runtime, title, emoji_options, options, channel=channel,
                                 message=message, message_id=message_id)
 
     async def _create_poll(self, ctx, runtime, title, emojis, options, channel=None, message=None,
@@ -77,20 +75,20 @@ class CreatePoll(InvocationCommand):
                 poll_options[emoji] = option
                 description += "{} - {}\n".format(emoji, option)
 
-            message = await channel.send(content=message, 
-                                         embed=discord.Embed(title=title, description=description))
+            description = "{}\n```{}```".format(message, description)
+            message = await self.send_msg(channel, embed=discord.Embed(title=title, description=description))
         else:
             #if the message is given fetch it
             try:
                 message = channel.fetch_message(message_id)
             except discord.NotFound:
-                channel.send(content="Couldn't find that message!")
+                self.send_error_msg(ctx.channel, "Couldn't find that message!")
                 return
             except discord.Forbidden:
-                channel.send(content="I'm missing permissions")
+                self.send_error_msg(ctx.channel, "I'm missing permissions")
                 return
             except discord.HTTPException:
-                channel.send(content="Something went wrong")
+                self.send_error_msg(ctx.channel, "Something went wrong")
                 return
 
         #add emojis to the message/remember what options correspond to the emojis
@@ -116,21 +114,21 @@ class CreatePoll(InvocationCommand):
         #EndPoll
         timers[str(message.id)] = Timer(time, _end_poll, self.router, message.id)
         await json_save(RUNNING_POLLS_FILE, running_polls)
-    
+
     def resume(self):
         for pollmessage_id, poll in running_polls.items():
             OnPollReaction(self.router, int(pollmessage_id))
             end_date = datetime.fromtimestamp(poll["end_time"], tz=timezone.utc)
             #end poll if it has ended during downtime
             if end_date < datetime.now(timezone.utc):
-                # just ends it 60 seconds from now because the discord bot needs to finish 
+                # just ends it 60 seconds from now because the discord bot needs to finish
                 # initializing very unsafe but should always work
                 timers[pollmessage_id] = Timer(60, _end_poll, self.router, pollmessage_id)
             #start a thread to end the poll if it's somewhere in the future
             else:
                 time = (end_date - datetime.now(timezone.utc)).total_seconds()
                 timers[pollmessage_id] = Timer(time, _end_poll, self.router, pollmessage_id)
-    
+ 
 
 def _get_poll_results_as_string(message_id):
     poll = running_polls[str(message_id)]
@@ -141,7 +139,7 @@ def _get_poll_results_as_string(message_id):
     if sorted_vote_list[0][1] == sorted_vote_list[1][1]:
         #tie
         results += "It's a tie between: {} {}".format(sorted_vote_list[0][0],
-                                                        poll["options"][sorted_vote_list[0][0]])
+                                                      poll["options"][sorted_vote_list[0][0]])
         tiesize = sum([sorted_vote_list[0][1] == vote for option, vote in sorted_vote_list])
         for emoji, votes in sorted_vote_list[1:tiesize]:
             results += " and {} {}".format(emoji, poll["options"][emoji])
@@ -150,8 +148,8 @@ def _get_poll_results_as_string(message_id):
     else:
         #not a tie
         results += "The winner is {} {}, with {} votes!\n".format(winner[0],
-                                                                    poll["options"][winner[0]],
-                                                                    winner[1])
+                                                                  poll["options"][winner[0]],
+                                                                  winner[1])
         remaining_options = 1
 
     for emoji, votes in sorted_vote_list[remaining_options:]:
@@ -159,7 +157,7 @@ def _get_poll_results_as_string(message_id):
 
     return results
 
-async def _end_poll(router, message_id):    
+async def _end_poll(router, message_id):
     router.remove_emoji_listener(int(message_id))
     message_id = str(message_id)
     poll = running_polls[message_id]
@@ -175,16 +173,18 @@ async def _end_poll(router, message_id):
     await json_save(RUNNING_POLLS_FILE, running_polls)
 
 class EndPoll(InvocationCommand):
+    """command to end a poll"""
     def __init__(self, cr):
         super().__init__(cr, function=self.end_poll, invocation="endpoll")
 
-    async def end_poll(self, ctx, message_id):
+    async def end_poll(self, _, message_id):
         """manually end a poll before the specified time"""
         timers[message_id].cancel()
         del timers[message_id]
         await _end_poll(self.router, message_id)
 
 class OnPollReaction(EmojiCommand):
+    """"command to add a vote to a poll"""
     def __init__(self, cr, message_id):
         super().__init__(cr, message_id=message_id, function=self.on_vote)
 
@@ -209,11 +209,10 @@ class OnPollReaction(EmojiCommand):
 
         poll["uservotes"][payload.user_id] = emoji
         poll["votes"][emoji] += 1
-        if "votesaving" not in timers:
-            print("starting votesave timer")
-            timers["votesaving"] = Timer(5, json_save, RUNNING_POLLS_FILE, running_polls)
+        await json_save(RUNNING_POLLS_FILE, running_polls)
 
-class show_poll_results(InvocationCommand):
+class ShowPollResults(InvocationCommand):
+    """command to show current votes in a poll"""
     def __init__(self, cr):
         super().__init__(cr, self.show_poll_results, invocation="showpollresults")
 
@@ -227,5 +226,5 @@ class show_poll_results(InvocationCommand):
         results = _get_poll_results_as_string(str(message_id))
 
         content = "preliminary results are as follows:"
-        await ctx.channel.send(embed=discord.Embed(title=poll["title"], content=content,
+        await self.send_msg(ctx.channel, embed=discord.Embed(title=poll["title"], content=content,
                                                    description=results))

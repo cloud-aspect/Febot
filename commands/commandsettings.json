@@ -24,6 +24,10 @@
             "need_auth": 1,
             "role_req": []
         },
+        "whois": {
+            "need_auth": 0,
+            "role_req": []
+        },
         "default:":{
             "need_auth": 0,
             "role_req": []

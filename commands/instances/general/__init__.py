@@ -1,1 +1,1 @@
-__all__ = ["authorize", "helpcommand", "setsetting", "whois"]
+__all__ = ["authorize", "helpcommand", "setprefix", "whois"]

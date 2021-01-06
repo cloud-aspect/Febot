@@ -30,5 +30,4 @@ class WhoIs(InvocationCommand):
                         value=td_format(datetime.utcnow() - member.joined_at),
                         inline=True)
         embed.add_field(name="Status", value=member.status, inline=True)
-
-        await ctx.channel.send(embed=embed)
+        await self.send_msg(ctx.channel, embed=embed)

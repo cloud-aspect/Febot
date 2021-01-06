@@ -1,9 +1,11 @@
 """implements the base command"""
 import json
-from aiofile import AIOFile
+from random import randint
 from inspect import signature
 
-from utils.discord_utils import cast_from_string, partial_emoji_to_string
+from aiofile import AIOFile
+
+from utils.discord_utils import cast_from_string
 
 class Command:
     """baseclass for a command"""
@@ -24,9 +26,11 @@ class Command:
             await self.send_msg(channel, msg, delete_after=delete_after)
         print(msg)
 
-    async def send_msg(self, channel, content=None, embed=None, delete_after=None):
+    async def send_msg(self, channel, content=None, embed=None, files=None, delete_after=None):
         """"wrapper for send message command"""
-        await channel.send(content, embed=embed, delete_after=delete_after)
+        if embed is not None:
+            embed.colour = randint(0, 0xffffff)
+        return await channel.send(content, embed=embed, files=files, delete_after=delete_after)
 
     async def _save_dict(self, file, saved_dict):
         async with AIOFile(file, "w+") as afp:
@@ -65,7 +69,6 @@ class InvocationCommand(Command):
     def _has_auth(self, ctx):
         guildperms = self.perms.get(ctx.guild.id, self.perms["default"])
         command_perms = guildperms.get(self.__name__)
-
         #either be admin, do not need auth, or have auth
         return (ctx.author.guild_permissions.administrator or
                 command_perms["need_auth"] == 0 or
@@ -73,7 +76,7 @@ class InvocationCommand(Command):
 
     def _parse_parameters(self):
         params = signature(self.function).parameters
-        for name, param in list(params.items())[1:]:
+        for _, param in list(params.items())[1:]:
             if param.kind == param.POSITIONAL_ONLY or param.kind == param.POSITIONAL_OR_KEYWORD:
                 self.req_param += [param]
             elif param.kind == param.VAR_POSITIONAL:
@@ -123,16 +126,18 @@ class InvocationCommand(Command):
 
         try:
             args, kwargs = self._check_and_cast_args(ctx, command_args)
-            await self.function(ctx, *args, **kwargs)
         except ValueError:
+            print(args, kwargs)
             await self.send_error_msg(ctx.channel,
-                                      "The provided armuments are of a wrong type".format(self.__name__))
+                                      "The provided armuments are of a wrong type")
+            return
+        await self.function(ctx, *args, **kwargs)
 
 
 class EmojiCommand(Command):
     """baseclass for a Emojicommand"""
     PERMISSION_FILE = "commands/commandsettings.json"
-    def __init__(self, router, message_id=None, function=None, name=None, send_error_msg=True):
+    def __init__(self, router, message_id: int=None, function=None, name=None, send_error_msg=True):
         super().__init__(router, send_error_msg)
         self.router.add_emoji_listener(message_id, self)
         self.__name__ = name
@@ -150,4 +155,18 @@ class EmojiCommand(Command):
     async def run(self, message, payload):
         await self.function(message, payload)
 
-        
+
+class MessageListener(Command):
+    """baseclass for a messagelistener"""
+    def __init__(self, router, channel_id: int = None, function=None, name=None,
+                 send_error_msg=True):
+        super().__init__(router, send_error_msg)
+        self.router.add_channel_listener(int(channel_id), self)
+        self.__name__ = name
+        self.function = function
+
+    def _has_auth(self, _):
+        return True
+
+    async def run(self, ctx):
+        await self.function(ctx)

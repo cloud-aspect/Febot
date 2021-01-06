@@ -1,3 +1,7 @@
+"""
+Utilities related to asyncio
+"""
+
 import asyncio
 import json
 from aiofile import AIOFile
@@ -19,4 +23,4 @@ class Timer:
 
 async def json_save(filepath, json_dict):
     async with AIOFile(filepath, "w+") as afp:
-            await afp.write(json.dumps(json_dict, indent=2))
+        await afp.write(json.dumps(json_dict, indent=2))
