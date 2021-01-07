@@ -36,6 +36,10 @@ class CreatePoll(InvocationCommand):
         if message:
             message = discord.utils.escape_mentions(message)
 
+        if len(args[0::2]) != len(args[1::2]):
+            await self.send_error_msg(ctx.channel,
+                                      "Not every emoji has a message")
+            return
         #check if emojis and options are properly alternating
         emojis = ctx.guild.emojis
         emoji_options = []
@@ -52,6 +56,8 @@ class CreatePoll(InvocationCommand):
             await self.send_error_msg(ctx.channel,
                                       "The poll needs more options than {}".format(len(emojis)))
             return
+
+      
 
         if channel is None:
             channel = ctx.channel
@@ -70,13 +76,13 @@ class CreatePoll(InvocationCommand):
                 message = "{} started a poll! It will last for {} days.\nVote by clicking on the emojis below! I will remember the last option you pressed. The options are as follows:\n"
                 message = message.format(ctx.author.mention, runtime)
 
-            description = ""
+            embed = discord.Embed(title=title, description=message)
             for emoji, option in zip(emojis, options):
                 poll_options[emoji] = option
-                description += "{} - {}\n".format(emoji, option)
+                embed.add_field(value="```{}```".format(option), name=emoji)
 
-            description = "{}\n```{}```".format(message, description)
-            message = await self.send_msg(channel, embed=discord.Embed(title=title, description=description))
+            # description = "{}\n```{}```".format(message, description)
+            message = await self.send_msg(channel, embed=embed)
         else:
             #if the message is given fetch it
             try:
@@ -102,7 +108,7 @@ class CreatePoll(InvocationCommand):
             "channel_id":channel.id,
             "votes":votes,
             "uservotes":{},
-            "end_time":datetime.timestamp(datetime.now(timezone.utc) + timedelta(seconds=runtime)),
+            "end_time":datetime.timestamp(datetime.now(timezone.utc) + timedelta(days=runtime)),
             "guild_id":channel.guild.id,
             "title":title
         }
@@ -110,12 +116,13 @@ class CreatePoll(InvocationCommand):
         #add poll to the list of running polls
         running_polls[str(message.id)] = poll
         OnPollReaction(self.router, message.id)
-        time = timedelta(seconds=runtime).total_seconds()
+        time = timedelta(days=runtime).total_seconds()
         #EndPoll
         timers[str(message.id)] = Timer(time, _end_poll, self.router, message.id)
         await json_save(RUNNING_POLLS_FILE, running_polls)
 
     def resume(self):
+        """resumes polls when the bot has been down for a while"""
         for pollmessage_id, poll in running_polls.items():
             OnPollReaction(self.router, int(pollmessage_id))
             end_date = datetime.fromtimestamp(poll["end_time"], tz=timezone.utc)
@@ -128,7 +135,7 @@ class CreatePoll(InvocationCommand):
             else:
                 time = (end_date - datetime.now(timezone.utc)).total_seconds()
                 timers[pollmessage_id] = Timer(time, _end_poll, self.router, pollmessage_id)
- 
+
 
 def _get_poll_results_as_string(message_id):
     poll = running_polls[str(message_id)]
@@ -143,7 +150,7 @@ def _get_poll_results_as_string(message_id):
         tiesize = sum([sorted_vote_list[0][1] == vote for option, vote in sorted_vote_list])
         for emoji, votes in sorted_vote_list[1:tiesize]:
             results += " and {} {}".format(emoji, poll["options"][emoji])
-        results += " they have {} votes each.".format(sorted_vote_list[0][1])
+        results += " they have {} votes each.\n".format(sorted_vote_list[0][1])
         remaining_options = tiesize
     else:
         #not a tie
@@ -153,13 +160,16 @@ def _get_poll_results_as_string(message_id):
         remaining_options = 1
 
     for emoji, votes in sorted_vote_list[remaining_options:]:
-        results += "{} {} - with {} votes\n".format(emoji, poll["options"][emoji], votes)
+        results += "{} {}\t{} votes\n".format(emoji, poll["options"][emoji], votes)
 
     return results
 
 async def _end_poll(router, message_id):
+    if str(message_id) not in running_polls:
+        return
     router.remove_emoji_listener(int(message_id))
     message_id = str(message_id)
+
     poll = running_polls[message_id]
     guild = router.client.get_guild(int(poll["guild_id"]))
     channel = guild.get_channel(poll["channel_id"])
@@ -179,8 +189,9 @@ class EndPoll(InvocationCommand):
 
     async def end_poll(self, _, message_id):
         """manually end a poll before the specified time"""
-        timers[message_id].cancel()
-        del timers[message_id]
+        if message_id in timers:
+            timers[message_id].cancel()
+            del timers[message_id]
         await _end_poll(self.router, message_id)
 
 class OnPollReaction(EmojiCommand):
@@ -203,6 +214,11 @@ class OnPollReaction(EmojiCommand):
         if emoji not in poll["options"]:
             return
 
+        for poll_emoji in [str(x) for x in poll["options"]]:
+            if poll_emoji not in [str(x) for x in message.reactions]:
+                await message.add_reaction(poll_emoji)
+
+
         if payload.user_id in poll["uservotes"]:
             #remove previous vote
             poll["votes"][poll["uservotes"][payload.user_id]] -= 1
@@ -222,9 +238,12 @@ class ShowPollResults(InvocationCommand):
         if not message_id:
             self.send_error_msg(ctx.channel, "That's not a valid poll id")
 
+        if str(message_id) not in running_polls:
+            return
+
         poll = running_polls[str(message_id)]
         results = _get_poll_results_as_string(str(message_id))
 
         content = "preliminary results are as follows:"
         await self.send_msg(ctx.channel, embed=discord.Embed(title=poll["title"], content=content,
-                                                   description=results))
+                                                             description=results))

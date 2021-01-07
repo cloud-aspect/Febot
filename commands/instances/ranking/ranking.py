@@ -123,7 +123,6 @@ class SetRankupChannel(InvocationCommand):
             "rank_updates_channel":rank_updates_channel.id,
             "ranking_role": ranking_role.id
         }
-        channel
 
         users[str(ctx.guild.id)]["pending_rankup"] = {}
         await json_save(USER_DB_FILE, users)
@@ -155,6 +154,7 @@ class onRankupRequest(EmojiCommand):
             emoji = "<:{}:{}>".format(payload.emoji.name, payload.emoji.id)
 
         await message.remove_reaction(emoji, emoji_poster)
+
         for role in emoji_poster.roles:
             if role.id == int(users[str(message.guild.id)]["settings"]["ranking_role"]):
                 return
@@ -166,7 +166,6 @@ class onRankupRequest(EmojiCommand):
             reply = reply.format(emoji_poster.mention)
             await self.send_msg(message.channel, reply, delete_after=20)
             return
-                
 
         next_rank = OSRS_RANKS[OSRS_RANKS.index(current_rank)+1]
 
@@ -176,7 +175,6 @@ class onRankupRequest(EmojiCommand):
                 reply = reply.format(emoji_poster.mention)
                 await self.send_msg(message.channel, reply, delete_after=20)
                 return
-            
 
             time = _time_till_rank(message.channel.guild.id, emoji_poster.id)
             if time > 0:
@@ -329,5 +327,6 @@ class onRankgranted(EmojiCommand):
             _setrank(message.guild.id, ranking_member.id, pending_entry["next_rank"])
 
         await message.delete()
-        del users[str(message.guild.id)]["pending_rankup"][str(ranking_member.id)]
+        if str(ranking_member.id) in users[str(message.guild.id)]["pending_rankup"]:
+            del users[str(message.guild.id)]["pending_rankup"][str(ranking_member.id)]
         await json_save(USER_DB_FILE, users)

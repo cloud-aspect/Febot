@@ -38,6 +38,7 @@ def id_or_mention_to_id(text):
     hastag_mention_len = 21
     at_mention_len = 22
 
+    user_id = "id"
     if hastag_mention_len == len(text) or at_mention_len == len(text):
         user_id = text[-19:-1]
     #user id send directly

@@ -7,16 +7,24 @@
       "rank_updates_channel": 796014722981298196,
       "ranking_role": 643546799163834389
     },
-    "pending_rankup": {},
+    "pending_rankup": {
+      "191532650974937088": {
+        "next_rank": "recruit"
+      },
+      "169154868391575552": {
+        "next_rank": "smiley"
+      }
+    },
     "170175884211388417": {
-      "current_rank": "general",
+      "current_rank": "unranked",
       "rank_time": {
         "smiley": 1409930728.804482,
-        "recruit": 1409933660.193193,
+        "recruit": 1609969517.73287,
         "corporal": 1409934009.484013,
         "sergeant": 1409934166.804094,
         "lieutenant": 1409935818.991934,
-        "general": 1609936215.523737
+        "general": 1609936215.523737,
+        "unranked": 1610029222.754759
       }
     },
     "133026491544895489": {
@@ -38,6 +46,22 @@
         "sergeant": 1409935695.221806,
         "lieutenant": 1609935739.956518
       }
+    },
+    "238745508666015745": {
+      "current_rank": "smiley",
+      "rank_time": {
+        "smiley": 1609969661.709408
+      }
+    },
+    "191532650974937088": {
+      "current_rank": "smiley",
+      "rank_time": {
+        "smiley": 1609969692.139601
+      }
+    },
+    "169154868391575552": {
+      "current_rank": "unranked",
+      "rank_time": {}
     }
   }
 }

@@ -89,11 +89,10 @@ class InvocationCommand(Command):
     def _check_and_cast_args(self, ctx, args_as_list):
         kwargs = {}
 
-        for arg in args_as_list:
-            if '=' in arg:
-                args_as_list.remove(arg)
-                arg = arg.split("=")
-                kwargs[arg[0]] = arg[1]
+        for arg in [x for x in args_as_list if "=" in x]:
+            args_as_list.remove(arg)
+            arg = arg.split("=")
+            kwargs[arg[0]] = arg[1]
 
 
         #args and kwargs of the command
@@ -127,7 +126,6 @@ class InvocationCommand(Command):
         try:
             args, kwargs = self._check_and_cast_args(ctx, command_args)
         except ValueError:
-            print(args, kwargs)
             await self.send_error_msg(ctx.channel,
                                       "The provided armuments are of a wrong type")
             return

@@ -1,1 +1,77 @@
-{}
+{
+  "796767344168271872": {
+    "options": {
+      "1\ufe0f\u20e3": "honey mustard",
+      "2\ufe0f\u20e3": "sweet onion",
+      "3\ufe0f\u20e3": "Cheddar and Sour Cream",
+      "4\ufe0f\u20e3": "rotisserie Chicken",
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": "Monkafish",
+      "\ud83e\uddc2": "salt & vinegar"
+    },
+    "channel_id": 639099100993945642,
+    "votes": {
+      "1\ufe0f\u20e3": 1,
+      "2\ufe0f\u20e3": 0,
+      "3\ufe0f\u20e3": 0,
+      "4\ufe0f\u20e3": 0,
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": 0,
+      "\ud83e\uddc2": 0
+    },
+    "uservotes": {
+      "170175884211388417": "1\ufe0f\u20e3"
+    },
+    "end_time": 1610120940.411194,
+    "guild_id": 639099100993945639,
+    "title": "new bot test poll"
+  },
+  "796767701875032086": {
+    "options": {
+      "1\ufe0f\u20e3": "honey mustard",
+      "2\ufe0f\u20e3": "sweet onion",
+      "3\ufe0f\u20e3": "Cheddar and Sour Cream",
+      "4\ufe0f\u20e3": "rotisserie Chicken",
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": "Monkafish",
+      "\ud83e\uddc2": "salt & vinegar"
+    },
+    "channel_id": 639099100993945642,
+    "votes": {
+      "1\ufe0f\u20e3": 0,
+      "2\ufe0f\u20e3": 0,
+      "3\ufe0f\u20e3": 1,
+      "4\ufe0f\u20e3": 0,
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": 0,
+      "\ud83e\uddc2": 0
+    },
+    "uservotes": {
+      "170175884211388417": "3\ufe0f\u20e3"
+    },
+    "end_time": 1610121025.659759,
+    "guild_id": 639099100993945639,
+    "title": "new bot test poll"
+  },
+  "796774811840938094": {
+    "options": {
+      "1\ufe0f\u20e3": "honey mustard",
+      "2\ufe0f\u20e3": "sweet onion",
+      "3\ufe0f\u20e3": "Cheddar and Sour Cream",
+      "4\ufe0f\u20e3": "rotisserie Chicken",
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": "Monkafish",
+      "\ud83e\uddc2": "salt & vinegar"
+    },
+    "channel_id": 639099100993945642,
+    "votes": {
+      "1\ufe0f\u20e3": 0,
+      "2\ufe0f\u20e3": 0,
+      "3\ufe0f\u20e3": 0,
+      "4\ufe0f\u20e3": 0,
+      "<:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:692011784592425062>": 0,
+      "\ud83e\uddc2": 1
+    },
+    "uservotes": {
+      "170175884211388417": "\ud83e\uddc2"
+    },
+    "end_time": 1610122720.781938,
+    "guild_id": 639099100993945639,
+    "title": "new bot test poll"
+  }
+}
