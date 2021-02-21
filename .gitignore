@@ -1,3 +1,7 @@
 *.pyc
 .*/__pycache__/
 /.env
+database/users.json
+database/polls.json
+commands/commands.json
+correction.py

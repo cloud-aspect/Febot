@@ -2,16 +2,18 @@
 import os
 import sys
 
-from commands.commandrouter import cr
+from commands.commandrouter import CommandRouter
 from dotenv import load_dotenv
 import discord
 
 load_dotenv()
-os.chdir(os.path.dirname(sys.argv[0]))
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 client = discord.Client(intents=discord.Intents.all())
-cr.set_client(client)
+
+cr = CommandRouter(client)
+
+print(cr.comlist.keys())
 
 
 

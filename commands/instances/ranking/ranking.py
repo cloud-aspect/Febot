@@ -92,8 +92,8 @@ class SetRank(InvocationCommand):
 
 
 TIME_REMAINING_EMOJI = "\U0001f552"
-RANK_REQ_EMOJI = "\U0001f199"
-RECRUIT_REQ_EMOJI = "\u0031\ufe0f\u20e3"
+RANK_REQ_EMOJI = "rankup"
+RECRUIT_REQ_EMOJI = "recruit"
 
 class SetRankupChannel(InvocationCommand):
     """"sets a channel to rank up users in"""
@@ -109,8 +109,8 @@ class SetRankupChannel(InvocationCommand):
         if message is None:
             await self.send_error_msg(ctx.channel, "can't find that message")
         await message.add_reaction(TIME_REMAINING_EMOJI)
-        await message.add_reaction(RANK_REQ_EMOJI)
-        await message.add_reaction(RECRUIT_REQ_EMOJI)
+        await message.add_reaction(discord.utils.get(ctx.guild.emojis, name=RANK_REQ_EMOJI))
+        await message.add_reaction(discord.utils.get(ctx.guild.emojis, name=RECRUIT_REQ_EMOJI))
         onRankupRequest(self.router, message_id)
         onResponse(self.router, channel.id, pending_ranks_channel)
 
@@ -147,13 +147,15 @@ class onRankupRequest(EmojiCommand):
     async def on_rankup_request(self, message, payload):
         emoji_poster = message.channel.guild.get_member(payload.user_id)
 
-
         if payload.emoji.is_unicode_emoji():
             emoji = payload.emoji.name
         else:
             emoji = "<:{}:{}>".format(payload.emoji.name, payload.emoji.id)
-
+        
+        
+        print(emoji)
         await message.remove_reaction(emoji, emoji_poster)
+        emoji = payload.emoji.name
 
         for role in emoji_poster.roles:
             if role.id == int(users[str(message.guild.id)]["settings"]["ranking_role"]):
@@ -233,7 +235,7 @@ class onRankupRequest(EmojiCommand):
                                         delete_after=60)
                 else:
                     await self.send_msg(message.channel, 
-                                        "{} please send 1 message in this channel with your exact rsn and an imagine of the gear (if needed)".format(emoji_poster.mention),
+                                        "{} please send 1 message in this channel with your exact rsn and an image of the gear (if needed)".format(emoji_poster.mention),
                                         delete_after=60)
             else:
                 await self.send_msg(message.channel, 

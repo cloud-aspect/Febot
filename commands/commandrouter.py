@@ -11,7 +11,7 @@ from aiofile import AIOFile
 
 class CommandRouter:
     """routes messages to commands"""
-    def __init__(self):
+    def __init__(self, client):
         self.SETTINGS_FILE = "commands/settings.json"
         with open(self.SETTINGS_FILE) as settingsfp:
             self.settings = json.load(settingsfp)
@@ -20,7 +20,7 @@ class CommandRouter:
         self.comlist = {}
         self.emoji_comlist = {}
         self.channel_comlist = {}
-        self.client = None
+        self.client = client
 
         for com in InvocationCommand.__subclasses__():
             com = com(self)
@@ -104,6 +104,4 @@ class CommandRouter:
 
 
 
-cr = CommandRouter()
 
-print(cr.comlist.keys())
