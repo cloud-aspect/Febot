@@ -32,9 +32,9 @@ class CreatePoll(InvocationCommand):
             return
 
         #don't @anyone in poll titles or message
-        title = discord.utils.escape_mentions(title)
-        if message:
-            message = discord.utils.escape_mentions(message)
+        # title = discord.utils.escape_mentions(title)
+        # if message:
+        #     message = discord.utils.escape_mentions(message)
 
         if len(args[0::2]) != len(args[1::2]):
             await self.send_error_msg(ctx.channel,
