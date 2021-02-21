@@ -7,8 +7,9 @@ import discord
 
 def is_emoji(txt):
     """checks if given string is an emoji"""
-    if txt in emoji.UNICODE_EMOJI:
-        return True
+    # this doesn't work on raspberry
+    # if txt in emoji.UNICODE_EMOJI:
+    return True
 
     custom_emoji_pattern = re.compile(r"<:[^:\s]{2,32}:[0-9]{18}>")
     return re.match(custom_emoji_pattern, txt)
