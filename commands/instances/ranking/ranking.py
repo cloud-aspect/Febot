@@ -93,7 +93,7 @@ class SetRank(InvocationCommand):
 
 TIME_REMAINING_EMOJI = "\U0001f552"
 RANK_REQ_EMOJI = "rankup"
-RECRUIT_REQ_EMOJI = "recruit"
+RECRUIT_REQ_EMOJI = "Recruit"
 
 class SetRankupChannel(InvocationCommand):
     """"sets a channel to rank up users in"""
