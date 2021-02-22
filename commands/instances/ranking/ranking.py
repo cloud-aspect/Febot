@@ -47,9 +47,9 @@ def _setrank(guild_id, member_id, rank):
     entry["rank_time"][rank] = timestamp
     # users[guild_id][member_id] = entry
 
-def _time_till_rank(guild_id, member_id):
+def _time_till_rank(guild_id, member):
     """returns time till rankup in seconds"""
-    member_info = _getmemberentry(guild_id, member_id)
+    member_info = _getmemberentry(guild_id, member.id)
     rank = member_info["current_rank"]
 
     #if unranked can get a rank now
@@ -59,8 +59,8 @@ def _time_till_rank(guild_id, member_id):
     time_req = rank_req[str(guild_id)][OSRS_RANKS[OSRS_RANKS.index(rank)+1]]["time"]
     # sorts all the ranks by the time they where assinged then gets the earliest timestamp as the
     # joining time of the cc
-    ranks_sorted_by_date = sorted(member_info["rank_time"].items(), key=lambda item: item[1])
-    join_time = datetime.fromtimestamp(ranks_sorted_by_date[0][1], timezone.utc)
+    # ranks_sorted_by_date = sorted(member_info["rank_time"].items(), key=lambda item: item[1])
+    join_time = member.joined_at
     last_rank_time = datetime.fromtimestamp(member_info["rank_time"][rank], timezone.utc)
 
     #refuse rankup because not enough time in cc
@@ -178,7 +178,7 @@ class onRankupRequest(EmojiCommand):
                 await self.send_msg(message.channel, reply, delete_after=20)
                 return
 
-            time = _time_till_rank(message.channel.guild.id, emoji_poster.id)
+            time = _time_till_rank(message.channel.guild.id, emoji_poster)
             if time > 0:
                 time = int(time/(60*60*24))+1
                 reply = "{} you need another {} day{} until you're eligable for a rank-up"
@@ -208,7 +208,7 @@ class onRankupRequest(EmojiCommand):
 
         if emoji == RANK_REQ_EMOJI:
             next_rank_req = rank_req[str(message.guild.id)][next_rank]
-            time_till_rankup = _time_till_rank(message.channel.guild.id, emoji_poster.id)
+            time_till_rankup = _time_till_rank(message.channel.guild.id, emoji_poster)
             # you can always get a smiley
             if member_entry["current_rank"] == OSRS_RANKS[0]:
                 await self.send_msg(message.channel, 
