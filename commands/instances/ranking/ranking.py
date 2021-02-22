@@ -64,7 +64,7 @@ def _time_till_rank(guild_id, member):
     last_rank_time = datetime.fromtimestamp(member_info["rank_time"][rank], timezone.utc)
 
     #refuse rankup because not enough time in cc
-    if join_time + timedelta(days=7*time_req) > datetime.now(timezone.utc):
+    if join_time + timedelta(days=7*time_req) > datetime.now(timezone.utc).replace(tzinfo=None):
         rankuptime = join_time + timedelta(days=7*time_req) - datetime.now(timezone.utc).replace(tzinfo=None)
         return rankuptime.total_seconds()
 
