@@ -60,12 +60,12 @@ def _time_till_rank(guild_id, member):
     # sorts all the ranks by the time they where assinged then gets the earliest timestamp as the
     # joining time of the cc
     # ranks_sorted_by_date = sorted(member_info["rank_time"].items(), key=lambda item: item[1])
-    join_time = member.joined_at
+    join_time = member.joined_at.replace(tzinfo=None)
     last_rank_time = datetime.fromtimestamp(member_info["rank_time"][rank], timezone.utc)
 
     #refuse rankup because not enough time in cc
     if join_time + timedelta(days=7*time_req) > datetime.now(timezone.utc):
-        rankuptime = join_time + timedelta(days=7*time_req) - datetime.now()
+        rankuptime = join_time + timedelta(days=7*time_req) - datetime.now().replace(tzinfo=None)
         return rankuptime.total_seconds()
 
     #refuse rankup because to short since last rankup
