@@ -65,12 +65,12 @@ def _time_till_rank(guild_id, member):
 
     #refuse rankup because not enough time in cc
     if join_time + timedelta(days=7*time_req) > datetime.now(timezone.utc):
-        rankuptime = join_time + timedelta(days=7*time_req) - datetime.now(timezone.utc)
+        rankuptime = join_time + timedelta(days=7*time_req) - datetime.now()
         return rankuptime.total_seconds()
 
     #refuse rankup because to short since last rankup
     if last_rank_time + timedelta(days=31) > datetime.now(timezone.utc):
-        rankuptime = last_rank_time + timedelta(days=32) - datetime.now(timezone.utc)
+        rankuptime = last_rank_time + timedelta(days=32) - datetime.now()
         return rankuptime.total_seconds()
 
     #theres enough time
