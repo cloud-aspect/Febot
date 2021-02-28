@@ -33,6 +33,19 @@
         "add"
       ]
     },
+    "setprefix":{
+      "need_auth": 1,
+      "role_req": [],
+      "usage": "setprefix <prefix>",
+      "options": {
+        "prefix": "A prefix of 1-3 characters"
+      },
+      "description": "sets the prefix the bot uses",
+      "arguments": [
+        1,
+        1
+      ]
+    },
     "setrank": {
       "need_auth": 1,
       "role_req": [],
@@ -62,6 +75,20 @@
       "arguments": [
         5,
         5
+      ]
+    },
+    "createmirrorchannel": {
+      "need_auth": 1,
+      "role_req": [],
+      "usage": "createmirrorchannel <#channel-from> <#channel-to>",
+      "options": {
+        "#channel-from": "channel to copy the messages from",
+        "#channel-to": "channel to copt the messages to"
+      },
+      "description": "moves a channels messages to another one",
+      "arguments": [
+        2,
+        2
       ]
     },
     "createpoll": {

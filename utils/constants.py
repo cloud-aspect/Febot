@@ -12,6 +12,9 @@ OSRS_RANK_ALIASSES = [["unranked", "none"],
 OSRS_RANKS = ["unranked", "smiley", "recruit", "corporal", "sergeant",
               "lieutenant", "captain", "general"]
 
+COMMON_OSRS_RANK_NAMES = ["Unranked", "Smiley", "1 stripe", "2 stripes", "3 stripes", "Bronze star",
+                          "Silver star", "Gold star"]
+
 alias_to_rank = {}
 for rankaliases in OSRS_RANK_ALIASSES:
     for alias in rankaliases:

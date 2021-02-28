@@ -8,7 +8,7 @@ from collections import defaultdict
 import discord
 
 from commands.command import InvocationCommand, EmojiCommand, MessageListener
-from utils.constants import alias_to_rank, OSRS_RANKS
+from utils.constants import alias_to_rank, OSRS_RANKS, COMMON_OSRS_RANK_NAMES
 from utils.async_utils import json_save, Timer
 
 RANK_REQ_FILE = "database/rank_requirements.json"
@@ -20,8 +20,6 @@ rank_req = defaultdict(lambda: rank_req["default"], rank_req)
 
 with open(USER_DB_FILE) as userfp:
     users = json.load(userfp)
-
-
 
 def _getmemberentry(guild_id: str, member_id: str):
     guild_id = str(guild_id)
@@ -88,6 +86,10 @@ class SetRank(InvocationCommand):
             return
         rank = alias_to_rank[rank]
         _setrank(ctx.guild.id, member.id, rank)
+
+        channel = ctx.guild.get_channel(users[str(ctx.guild.id)]["settings"]["rank_updates_channel"])
+        await self.send_msg(channel, "{} - {}".format(member.mention, rank))
+        await self.send_msg(ctx.channel, "Made {} {} rank".format(member.mention, rank), delete_after=20)
         await json_save(USER_DB_FILE, users)
 
 
@@ -146,15 +148,20 @@ class onRankupRequest(EmojiCommand):
 
     async def on_rankup_request(self, message, payload):
         emoji_poster = message.channel.guild.get_member(payload.user_id)
+        if emoji_poster == None:
+            emoji_poster = message.channel.guild.fetch_member(payload.user_id)
 
         if payload.emoji.is_unicode_emoji():
             emoji = payload.emoji.name
         else:
             emoji = "<:{}:{}>".format(payload.emoji.name, payload.emoji.id)
-        
-        
-        print(emoji)
-        await message.remove_reaction(emoji, emoji_poster)
+
+        try:
+            await message.remove_reaction(emoji, emoji_poster)
+        except:
+            print("error, trying to remove emoji: {}, posted by: {}", emoji, emoji_poster)
+            print("error")
+
         emoji = payload.emoji.name
 
         for role in emoji_poster.roles:
@@ -170,6 +177,7 @@ class onRankupRequest(EmojiCommand):
             return
 
         next_rank = OSRS_RANKS[OSRS_RANKS.index(current_rank)+1]
+        next_rank_name = COMMON_OSRS_RANK_NAMES[OSRS_RANKS.index(current_rank)+1]
 
         if emoji == TIME_REMAINING_EMOJI:
             if rank_req[str(message.guild.id)][next_rank]["handpicked"] == 1:
@@ -194,10 +202,11 @@ class onRankupRequest(EmojiCommand):
 
         if emoji == RECRUIT_REQ_EMOJI:
             if OSRS_RANKS.index(current_rank) >= OSRS_RANKS.index("recruit"):
-                 await self.send_msg(message.channel, 
-                                "{}, your rank is already recruit or higher than recruit".format(emoji_poster.mention),
-                                delete_after=60)
-            await self.send_msg(message.channel, 
+                await self.send_msg(message.channel,
+                                    "{}, your rank is already recruit or higher than recruit".format(emoji_poster.mention),
+                                    delete_after=60)
+                return
+            await self.send_msg(message.channel,
                                 "{} please send 1 image in this channel showing that you have the gear required for raiding, along with your exact rsn".format(emoji_poster.mention),
                                 delete_after=60)
             await message.channel.set_permissions(emoji_poster, send_messages=True)
@@ -231,7 +240,7 @@ class onRankupRequest(EmojiCommand):
             elif next_rank_req["gear"] == 1:
                 if OSRS_RANKS[OSRS_RANKS.index(current_rank)+1] != "lieutenant":
                     await self.send_msg(message.channel, 
-                                        "{} please send 1 image in this channel showing that you have the gear required for {} along with your exact rsn".format(emoji_poster.mention, next_rank),
+                                        "{} please send 1 image in this channel showing that you have the gear required for {} along with your exact rsn".format(emoji_poster.mention, next_rank_name),
                                         delete_after=60)
                 else:
                     await self.send_msg(message.channel, 
@@ -286,7 +295,7 @@ class onResponse(MessageListener):
         
         #send the ranking up message and sets up the emoji commands
         message = "{} wants to rank up to {} their rsn 'should' be: {}".format(ctx.author.mention,
-                                                                               OSRS_RANKS[OSRS_RANKS.index(current_rank)+1],
+                                                                               COMMON_OSRS_RANK_NAMES[OSRS_RANKS.index(current_rank)+1],
                                                                                ctx.content)
         send_message = await self.mirror_channel.send(content=message, files=files)
         users[str(ctx.channel.guild.id)]["pending_rankup"][str(ctx.author.id)]["message"] = send_message.id

@@ -20,6 +20,10 @@
             "need_auth": 1,
             "role_req": []
         },
+        "setprefix":{
+            "need_auth": 1,
+            "role_req": []
+        },
         "showpollresults": {
             "need_auth": 1,
             "role_req": []
