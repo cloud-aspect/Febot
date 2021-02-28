@@ -57,8 +57,6 @@ class CreatePoll(InvocationCommand):
                                       "The poll needs more options than {}".format(len(emojis)))
             return
 
-      
-
         if channel is None:
             channel = ctx.channel
 
