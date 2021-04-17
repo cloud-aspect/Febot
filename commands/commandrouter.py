@@ -2,6 +2,8 @@
 """This file implements a commmandrouter for a discord bot"""
 import json
 import shlex
+import re
+import discord
 from collections import defaultdict
 
 from commands.command import InvocationCommand
@@ -20,6 +22,7 @@ class CommandRouter:
         self.comlist = {}
         self.emoji_comlist = {}
         self.channel_comlist = {}
+        self.dm_handler = None
         self.client = client
 
         for com in InvocationCommand.__subclasses__():
@@ -43,7 +46,7 @@ class CommandRouter:
     def add_emoji_listener(self, messageid, command):
         """adds emoji to be routed for a given message"""
         self.emoji_comlist[messageid] = command
-    
+
     def add_channel_listener(self, channel_id, command):
         self.channel_comlist[channel_id] = command
 
@@ -53,17 +56,29 @@ class CommandRouter:
         if str(messageid) + "_message" in self.emoji_comlist:
             del self.emoji_comlist[str(messageid) + "_message"]
 
+    def set_dm_handler(self, command):
+        self.dm_handler = command
+
     def _iscommand(self, command):
         #command must be defined in commands.json
         return command in self.comlist
 
     def _startswithprefix(self, ctx, command):
-        return command.startswith(self.settings[str(ctx.guild.id)]["prefix"])
+        pattern = re.compile("[A-Za-z]")
+        prefix = self.settings[str(ctx.guild.id)]["prefix"]
+        return (command.startswith(prefix)
+            and len(command[len(prefix):]) > 3
+            and re.search(pattern, command))
 
     async def route_messsage(self, ctx):
         """given a discord message interprets it
             and routes it to the associated command"""
         if ctx.author.bot:
+            return
+        
+        
+        if isinstance(ctx.channel, discord.channel.DMChannel) and ctx.author != self.client.user and self.dm_handler is not None:
+            await self.dm_handler.run(ctx)
             return
 
         command = ctx.content
@@ -101,7 +116,3 @@ class CommandRouter:
         """saves command parameters to file if they've been updated"""
         async with AIOFile(self.SETTINGS_FILE, "w+") as afp:
             await afp.write(json.dumps(self.settings, indent=2))
-
-
-
-

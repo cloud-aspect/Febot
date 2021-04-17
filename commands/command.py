@@ -135,7 +135,7 @@ class InvocationCommand(Command):
 class EmojiCommand(Command):
     """baseclass for a Emojicommand"""
     PERMISSION_FILE = "commands/commandsettings.json"
-    def __init__(self, router, message_id: int=None, function=None, name=None, send_error_msg=True):
+    def __init__(self, router, message_id: int = None, function=None, name=None, send_error_msg=True):
         super().__init__(router, send_error_msg)
         self.router.add_emoji_listener(message_id, self)
         self.__name__ = name
@@ -160,6 +160,22 @@ class MessageListener(Command):
                  send_error_msg=True):
         super().__init__(router, send_error_msg)
         self.router.add_channel_listener(int(channel_id), self)
+        self.__name__ = name
+        self.function = function
+
+    def _has_auth(self, _):
+        return True
+
+    async def run(self, ctx):
+        await self.function(ctx)
+
+
+class DMHandler(Command):
+    """class that handles DMS only 1 works at a time"""
+    def __init__(self, router, function=None, name=None,
+                 send_error_msg=True):
+        super().__init__(router, send_error_msg)
+        self.router.set_dm_handler(self)
         self.__name__ = name
         self.function = function
 

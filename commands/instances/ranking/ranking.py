@@ -61,18 +61,20 @@ def _time_till_rank(guild_id, member):
     join_time = member.joined_at.replace(tzinfo=None)
     last_rank_time = datetime.fromtimestamp(member_info["rank_time"][rank], timezone.utc)
 
+    needed_time_in_cc = 0
+    needed_time_since_rankup = 0
     #refuse rankup because not enough time in cc
     if join_time + timedelta(days=7*time_req) > datetime.now(timezone.utc).replace(tzinfo=None):
         rankuptime = join_time + timedelta(days=7*time_req) - datetime.now(timezone.utc).replace(tzinfo=None)
-        return rankuptime.total_seconds()
+        needed_time_in_cc = rankuptime.total_seconds()
 
     #refuse rankup because to short since last rankup
     if last_rank_time + timedelta(days=31) > datetime.now(timezone.utc):
         rankuptime = last_rank_time + timedelta(days=32) - datetime.now(timezone.utc)
-        return rankuptime.total_seconds()
+        needed_time_since_rankup = rankuptime.total_seconds()
 
     #theres enough time
-    return 0
+    return max(needed_time_in_cc, needed_time_since_rankup)
 
 class SetRank(InvocationCommand):
     """sets the rank of a user"""
@@ -148,8 +150,8 @@ class onRankupRequest(EmojiCommand):
 
     async def on_rankup_request(self, message, payload):
         emoji_poster = message.channel.guild.get_member(payload.user_id)
-        if emoji_poster == None:
-            emoji_poster = message.channel.guild.fetch_member(payload.user_id)
+        if emoji_poster is None:
+            emoji_poster = await message.channel.guild.fetch_member(payload.user_id)
 
         if payload.emoji.is_unicode_emoji():
             emoji = payload.emoji.name
