@@ -1,33 +1,91 @@
 {
     "default":
-        {"smiley":{
+        {
+        "unranked":{
             "handpicked":0,
             "time":0,
-            "total":500,
-            "gear":0
+            "total":0,
+            "gear":0,
+            "next":["iron"]
+        },
+        "iron":{
+            "handpicked":0,
+            "time":0,
+            "total":0,
+            "gear":0,
+            "next":["recruit"]
         },
         "recruit":{
             "handpicked":0,
             "time":4,
             "total":1250,
-            "gear":0
+            "gear":0,
+            "next":["peon"]
         },
-        "corporal":{
+        "peon":{
             "handpicked":0,
             "time":10,
             "total":1500,
-            "gear":0
+            "gear":0,
+            "next":["corporal"]
         },
-        "sergeant":{
+        "corporal":{
             "handpicked":0,
             "time":20,
             "total":1750,
-            "gear":1
+            "gear":1,
+            "next":["sergeant"]
         },
-        "lieutenant":{
+        "sergeant":{
             "handpicked":0,
-            "time":36,
+            "time":30,
+            "total":1900,
+            "gear":1,
+            "next":["cadet"]
+        },
+        "cadet":{
+            "handpicked":0,
+            "time":40,
             "total":2000,
+            "gear":1,
+            "next":["pvmer", "skiller"]
+        },
+        "pvmer":{
+            "handpicked":0,
+            "time":40,
+            "total":2000,
+            "gear":1,
+            "next":["combat expert"],
+            "equal": ["skiller"]
+        },
+        "combat expert":{
+            "handpicked":0,
+            "time":40,
+            "total":2000,
+            "gear":1,
+            "next":["gamer"],
+            "equal": ["maxed"]
+        },
+        "skiller":{
+            "handpicked":0,
+            "time":40,
+            "total":2200,
+            "gear":1,
+            "next":["maxed"],
+            "equal": ["pvmer"]
+        },
+        "maxed":{
+            "handpicked":0,
+            "time":40,
+            "total":2277,
+            "gear":1,
+            "next":["gamer"],
+            "equal": ["combat expert"]
+        },
+        "gamer":{
+            "handpicked":0,
+            "time":40,
+            "total":2277,
             "gear":1
         },
         "captain":{
