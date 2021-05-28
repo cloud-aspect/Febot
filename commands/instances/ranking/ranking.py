@@ -135,16 +135,16 @@ class SetRankupChannel(InvocationCommand):
         await json_save(USER_DB_FILE, users)
 
     def resume(self):
+        print(len(list(users.values())))
         for guild in users.values():
-            settings = guild["settings"]
-            onResponse(self.router, settings["rankupchannel"], settings["pending_ranks_channel"])
-            onRankupRequest(self.router, int(settings["rankup_message_id"]))
+            onResponse(self.router, guild['settings']["rankupchannel"], guild['settings']["pending_ranks_channel"])
+            onRankupRequest(self.router, int(guild['settings']["rankup_message_id"]))
             pending_rankups = guild["pending_rankup"]
             for rankup in pending_rankups.values():
                 if "message" in rankup:
                     onRankgranted(self.router, int(rankup["message"]))
                 elif "recruit_message" in rankup:
-                    onRankgranted(self.router, int(rankup["message"]))
+                    onRecruitGranted(self.router, int(rankup["recruit_message"]))
                 else:
                     del rankup
 
