@@ -2,7 +2,6 @@
 .*/__pycache__/
 /.env
 commands/commands.json
-correction.py
 database/.*
 commands/settings.json
 database/*
