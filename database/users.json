@@ -16,16 +16,17 @@
       }
     },
     "170175884211388417": {
-      "current_rank": "unranked",
+      "current_rank": "recruit",
       "rank_time": {
         "smiley": 1409930728.804482,
-        "recruit": 1609969517.73287,
+        "recruit": 1633018043.292623,
         "corporal": 1409934009.484013,
         "sergeant": 1409934166.804094,
         "lieutenant": 1409935818.991934,
         "general": 1609936215.523737,
         "unranked": 1610029222.754759
-      }
+      },
+      "permanent": 0
     },
     "133026491544895489": {
       "current_rank": "unranked",

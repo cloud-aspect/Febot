@@ -2,6 +2,5 @@
 .*/__pycache__/
 /.env
 commands/commands.json
-database/.*
 commands/settings.json
 database/*
