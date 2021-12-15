@@ -3,4 +3,4 @@
 /.env
 commands/commands.json
 commands/settings.json
-database/*
+database/*.json
